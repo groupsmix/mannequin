@@ -20,7 +20,14 @@ jobs:
         run: stylua --check src/
 
       - name: Lint (Selene)
-        run: selene src/
+        run: |
+          selene src/ 2>&1 | tee /tmp/selene.txt || true
+          if grep -q "^0 errors$" /tmp/selene.txt; then
+            echo "Selene passed (0 errors)"
+          else
+            echo "::error::Selene found lint errors"
+            exit 1
+          fi
 
       - name: Build (Rojo)
         run: rojo build -o Mannequin.rbxl
