@@ -1,0 +1,28 @@
+# Rojo build output
+*.rbxl
+*.rbxlx
+*.rbxm
+*.rbxmx
+
+# Wally packages
+Packages/
+DevPackages/
+wally.lock
+
+# Roblox Studio lock files
+*.rbxl.lock
+*.rbxlx.lock
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+
+# Aftman
+~/.aftman/
+
+# Rojo sourcemap (auto-generated)
+sourcemap.json

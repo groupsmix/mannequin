@@ -40,19 +40,19 @@ local ProximityPromptSetup = require(ServerScriptService:WaitForChild("Proximity
 -- STEP 3: Build service dependency table
 -- ============================================================
 local services = {
-    GameManager = GameManager,
-    PlayerManager = PlayerManager,
-    GazeSystem = GazeSystem,
-    TaskManager = TaskManager,
-    VoteManager = VoteManager,
-    AtmosphereManager = AtmosphereManager,
-    DataManager = DataManager,
-    MonetizationManager = MonetizationManager,
-    MonsterController = MonsterController,
-    MannequinSetup = MannequinSetup,
-    SoundManager = SoundManager,
-    AntiExploit = AntiExploit,
-    ProximityPromptSetup = ProximityPromptSetup,
+	GameManager = GameManager,
+	PlayerManager = PlayerManager,
+	GazeSystem = GazeSystem,
+	TaskManager = TaskManager,
+	VoteManager = VoteManager,
+	AtmosphereManager = AtmosphereManager,
+	DataManager = DataManager,
+	MonetizationManager = MonetizationManager,
+	MonsterController = MonsterController,
+	MannequinSetup = MannequinSetup,
+	SoundManager = SoundManager,
+	AntiExploit = AntiExploit,
+	ProximityPromptSetup = ProximityPromptSetup,
 }
 
 -- ============================================================
