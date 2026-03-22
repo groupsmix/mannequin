@@ -2,54 +2,141 @@
 
 A complete, production-ready Roblox horror/social deduction game where one player disguises as a mannequin in a department store. The mannequin can only move when no one is looking.
 
-**22 scripts. 2,800+ lines of Luau. Server-authoritative. Anti-cheat. Full UI. Ready to publish.**
+**22 scripts. 4,500+ lines of Luau. Server-authoritative. Anti-cheat. Full UI. Ready to publish.**
 
 ---
 
-## How to Install in Roblox Studio
+## Development Setup (Rojo + GitHub)
 
-### Step 1: Create a New Place
-1. Open **Roblox Studio**
-2. Create a new place (Baseplate or empty)
-3. Save it to Roblox (File > Save to Roblox)
+This project uses [Rojo](https://rojo.space) to sync code from your filesystem into Roblox Studio, so you can use VS Code (or any editor) + Git for version control.
 
-### Step 2: Set Up the Folder Structure
+### Prerequisites
 
-Create the following structure in the Explorer panel. The game has **22 scripts** organized across 4 services:
+1. **[Aftman](https://github.com/LPGhatguy/aftman)** — Toolchain manager (installs Rojo, Selene, StyLua, Wally)
+2. **[Roblox Studio](https://www.roblox.com/create)** — For map building and playtesting
+3. **[VS Code](https://code.visualstudio.com/)** + [Rojo extension](https://marketplace.visualstudio.com/items?itemName=evaera.vscode-rojo) (recommended)
 
-**ServerScriptService (14 ModuleScripts + 1 Script):**
-- Main (Script — NOT ModuleScript)
-- GameManager, PlayerManager, GazeSystem, TaskManager, VoteManager
-- DataManager, AtmosphereManager, MonetizationManager, MonsterController
-- MannequinSetup, SoundManager, AntiExploit, ProximityPromptSetup
+### Quick Start
 
-**ReplicatedStorage:**
-- Modules (Folder) > Config, Utils (ModuleScripts)
-- Remotes (Folder) > RemoteSetup (ModuleScript)
+```bash
+# 1. Clone the repo
+git clone https://github.com/groupsmix/mannequin.git
+cd mannequin
 
-**StarterPlayerScripts (2 LocalScripts):**
-- ClientController, SpectatorCamera
+# 2. Install tools (Rojo, Selene, StyLua, Wally)
+aftman install
 
-**StarterGui (5 LocalScripts):**
-- HUDController, LoadingScreen, SettingsMenu, ShopUI, TutorialUI
+# 3. Install packages (if any are added later)
+wally install
 
-### Step 3: Copy the Code
-For each file in the src/ folder:
-1. Right-click the correct parent in Explorer
-2. Insert Object > choose the correct type (Script, ModuleScript, or LocalScript)
-3. Paste the contents from the corresponding .lua file
-4. Rename each script to match the file name (without .lua)
+# 4. Start Rojo dev server
+rojo serve
+```
 
-### Step 4: Build the Map
+Then in **Roblox Studio**:
+1. Install the [Rojo plugin](https://www.roblox.com/library/13916111004) from the Roblox Marketplace
+2. Open a new or existing place
+3. Click **Rojo > Connect** in the plugin toolbar
+4. Your code syncs live — edit in VS Code, see changes in Studio instantly
+
+### Build a .rbxl File
+
+```bash
+rojo build -o Mannequin.rbxl
+```
+
+This creates a complete place file you can open directly in Roblox Studio.
+
+### Linting & Formatting
+
+```bash
+# Check formatting
+stylua --check src/
+
+# Auto-format
+stylua src/
+
+# Lint for errors
+selene src/
+```
+
+### CI Pipeline
+
+Every push and pull request to `main` runs GitHub Actions that:
+1. Checks formatting with **StyLua**
+2. Lints with **Selene**
+3. Builds with **Rojo** (validates project structure)
+
+---
+
+## Project Structure
+
+```
+mannequin/
+├── default.project.json          # Rojo project — maps files to Roblox services
+├── aftman.toml                   # Toolchain (Rojo, Selene, StyLua, Wally)
+├── selene.toml                   # Linter config
+├── stylua.toml                   # Formatter config
+├── wally.toml                    # Package manager
+├── .github/workflows/ci.yml     # GitHub Actions CI
+├── docs/
+│   └── GAME_DESIGN_DOCUMENT.md
+└── src/
+    ├── ServerScriptService/      # Server-side code
+    │   ├── Main.server.luau      # Bootstrap (Script)
+    │   ├── GameManager.luau      # Round lifecycle (ModuleScript)
+    │   ├── PlayerManager.luau    # Spawning, death, spectating
+    │   ├── GazeSystem.luau       # CORE — line-of-sight detection
+    │   ├── TaskManager.luau      # Shopping task system
+    │   ├── VoteManager.luau      # Emergency meetings + voting
+    │   ├── DataManager.luau      # DataStore persistence
+    │   ├── AtmosphereManager.luau # 6-phase tension escalation
+    │   ├── MonetizationManager.luau
+    │   ├── MonsterController.luau
+    │   ├── MannequinSetup.luau   # Procedural mannequin spawning
+    │   ├── SoundManager.luau     # 40+ sounds
+    │   ├── AntiExploit.luau      # Rate limiting, teleport detection
+    │   └── ProximityPromptSetup.luau
+    ├── ReplicatedStorage/        # Shared between server + client
+    │   ├── Modules/
+    │   │   ├── Config.luau       # All tuning values
+    │   │   └── Utils.luau        # Math, shuffle, helpers
+    │   └── Remotes/
+    │       └── RemoteSetup.luau  # 50+ RemoteEvents/Functions
+    ├── StarterPlayerScripts/     # Client-side scripts
+    │   ├── ClientController.client.luau   # Input, camera, flashlight
+    │   └── SpectatorCamera.client.luau    # Dead player camera
+    └── StarterGui/               # GUI scripts
+        ├── HUDController.client.luau      # HUD, tasks, voting, notifications
+        ├── LoadingScreen.client.luau      # Animated loading screen
+        ├── SettingsMenu.client.luau       # Volume, graphics, sensitivity
+        ├── ShopUI.client.luau             # Cosmetics shop
+        └── TutorialUI.client.luau         # 9-step onboarding
+```
+
+### Rojo File Naming Convention
+
+| Suffix | Roblox Type | Used For |
+|--------|-------------|----------|
+| `.server.luau` | Script | Server entry points |
+| `.client.luau` | LocalScript | Client-side scripts |
+| `.luau` | ModuleScript | Shared modules (default) |
+
+---
+
+## Map Setup in Roblox Studio
+
+### Step 1: Build the Map
+
 Use Roblox Studio AI Assistant (View > Assistant):
 
-Prompt: "Create a 2-floor department store interior with clothing section, mannequin display areas, electronics section, 3 checkout registers, storage room, furniture section, toy section, security room, break room, restrooms, 2 escalators, 1 elevator, 1 stairwell, entrance lobby with glass doors, fluorescent ceiling lights, tile flooring"
+**Prompt:** "Create a 2-floor department store interior with clothing section, mannequin display areas, electronics section, 3 checkout registers, storage room, furniture section, toy section, security room, break room, restrooms, 2 escalators, 1 elevator, 1 stairwell, entrance lobby with glass doors, fluorescent ceiling lights, tile flooring"
 
-Then: "Add 30 mannequin figures throughout the store in display poses"
+**Then:** "Add 30 mannequin figures throughout the store in display poses"
 
-### Step 5: Tag Map Objects
+### Step 2: Tag Map Objects
 
-**Required CollectionService Tags (use Tag Editor plugin):**
+Install the **Tag Editor** plugin, then apply these CollectionService tags:
 
 | Tag | What To Tag | Min Count |
 |-----|------------|-----------|
@@ -71,69 +158,28 @@ Then: "Add 30 mannequin figures throughout the store in display poses"
 | SpawnTag = "MeetingPoint" | Center of lobby |
 | MannequinSpawn = true | Where mannequins appear (25+ parts) |
 
-### Step 6: Configure Game Settings
-1. Game Settings > Security: Enable Studio Access to API Services
-2. Workspace > StreamingEnabled: true
-3. Players > CharacterAutoLoads: false
+### Step 3: Configure Game Settings
 
-### Step 7: Set Up Game Passes (Optional)
+1. Game Settings > Security: Enable **Studio Access to API Services**
+2. These are auto-set by Rojo via `default.project.json`:
+   - Workspace > StreamingEnabled: `true`
+   - Players > CharacterAutoLoads: `false`
+
+### Step 4: Set Up Game Passes (Optional)
 
 | Game Pass | Price |
 |-----------|-------|
-| VIP (2x XP) | R\99 |
-| Monster Radio | R\9 |
-| Flashlight Pro | R9 |
-| Extra Inspect | R\9 |
+| VIP (2x XP) | R$199 |
+| Monster Radio | R$99 |
+| Flashlight Pro | R$149 |
+| Extra Inspect | R$99 |
 
-Copy Asset IDs into Config.lua > Config.GamePasses
+Create these on the [Creator Dashboard](https://create.roblox.com), then paste Asset IDs into `src/ReplicatedStorage/Modules/Config.luau > Config.GamePasses`.
 
-### Step 8: Test!
-1. F5 for solo test
-2. Test > Start with 4+ players for multiplayer test
+### Step 5: Test!
 
----
-
-## Complete File Reference (22 scripts)
-
-### Server (14 files)
-| File | Purpose |
-|------|---------|
-| Main.lua | Bootstrap — initializes all systems |
-| GameManager.lua | Round lifecycle, state machine, win conditions |
-| PlayerManager.lua | Spawning, death, spectating |
-| GazeSystem.lua | **CORE** — frustum + raycast line-of-sight |
-| TaskManager.lua | Shopping task assignment and tracking |
-| VoteManager.lua | Emergency meetings, voting, elimination |
-| DataManager.lua | DataStore persistence, XP, levels |
-| AtmosphereManager.lua | 6-phase tension escalation |
-| MonetizationManager.lua | Game Passes, Dev Products |
-| MonsterController.lua | Kill validation, inspect, stun |
-| MannequinSetup.lua | Procedural mannequin spawning |
-| SoundManager.lua | 40+ sounds, music, SFX, ambient |
-| AntiExploit.lua | Rate limiting, teleport/speed detection |
-| ProximityPromptSetup.lua | Modern E-press interactions |
-
-### Client (2 files)
-| File | Purpose |
-|------|---------|
-| ClientController.lua | Input, camera stream, flashlight, mobile |
-| SpectatorCamera.lua | Dead player camera cycling |
-
-### GUI (5 files)
-| File | Purpose |
-|------|---------|
-| HUDController.lua | HUD, tasks, voting, notifications |
-| LoadingScreen.lua | Animated loading with asset preload |
-| SettingsMenu.lua | Volume, graphics, sensitivity |
-| ShopUI.lua | Cosmetics shop (skins, effects, emotes) |
-| TutorialUI.lua | 9-step interactive onboarding |
-
-### Shared (3 files)
-| File | Purpose |
-|------|---------|
-| Config.lua | All tuning values |
-| Utils.lua | Math, shuffle, debounce helpers |
-| RemoteSetup.lua | 50+ RemoteEvents/Functions |
+1. **F5** for solo test
+2. **Test > Start** with 4+ players for multiplayer test
 
 ---
 
@@ -153,6 +199,7 @@ Copy Asset IDs into Config.lua > Config.GamePasses
 ---
 
 ## Anti-Exploit Protection
+
 - Rate limiting on all RemoteEvents
 - Teleport detection (max 80 studs/s)
 - Speed hack detection
@@ -163,7 +210,7 @@ Copy Asset IDs into Config.lua > Config.GamePasses
 
 ---
 
-## Tuning (Config.lua)
+## Tuning (Config.luau)
 
 | Value | Default | Effect |
 |-------|---------|--------|
@@ -179,4 +226,5 @@ Target Monster win rate: 40-45%.
 ---
 
 ## Game Design Document
-See docs/GAME_DESIGN_DOCUMENT.md for full specification.
+
+See [docs/GAME_DESIGN_DOCUMENT.md](docs/GAME_DESIGN_DOCUMENT.md) for full specification.

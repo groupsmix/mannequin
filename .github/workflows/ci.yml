@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    name: Lint & Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Aftman
+        uses: ok-nick/setup-aftman@v0.4.2
+
+      - name: Check formatting (StyLua)
+        run: stylua --check src/
+
+      - name: Lint (Selene)
+        run: selene src/
+
+      - name: Build (Rojo)
+        run: rojo build -o Mannequin.rbxl
